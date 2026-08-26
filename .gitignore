@@ -1,0 +1,27 @@
+# Gradle / build
+.gradle/
+build/
+*/build/
+app/build/
+
+# Android SDK 本地配置
+local.properties
+
+# 签署密钥（不入库）
+*.keystore
+*.jks
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 日志
+*.log
+
+# 编译产物 APK
+*.apk
