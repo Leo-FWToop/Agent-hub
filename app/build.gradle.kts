@@ -18,10 +18,14 @@ android {
 
     signingConfigs {
         create("release") {
-            storeFile = rootProject.file("release.keystore")
-            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "agenthub-v1"
-            keyAlias = System.getenv("KEY_ALIAS") ?: "agenthub"
-            keyPassword = System.getenv("KEY_PASSWORD") ?: "agenthub-v1"
+            // 如果 release.keystore 文件存在，使用自定义签名；否则使用 Debug 签名
+            val keystoreFile = rootProject.file("release.keystore")
+            if (keystoreFile.exists()) {
+                storeFile = keystoreFile
+                storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "agenthub-v1"
+                keyAlias = System.getenv("KEY_ALIAS") ?: "agenthub"
+                keyPassword = System.getenv("KEY_PASSWORD") ?: "agenthub-v1"
+            }
         }
     }
 
@@ -32,8 +36,12 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // 应用签名配置
-            signingConfig = signingConfigs.getByName("release")
+            // 如果 release.keystore 存在，使用 release 签名；否则使用 Debug 签名
+            signingConfig = if (rootProject.file("release.keystore").exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 
