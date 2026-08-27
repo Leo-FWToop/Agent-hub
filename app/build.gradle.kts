@@ -12,8 +12,8 @@ android {
         applicationId = "com.tailnet.agenthub"
         minSdk = 26
         targetSdk = 35
-        versionCode = 20
-        versionName = "1.15"
+        versionCode = 21
+        versionName = "1.16"
     }
 
     signingConfigs {
@@ -32,7 +32,8 @@ android {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            // 移除签名配置，使用默认 Debug 签名
+            // 应用签名配置
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 

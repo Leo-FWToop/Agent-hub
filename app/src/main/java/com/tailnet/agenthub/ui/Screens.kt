@@ -681,10 +681,10 @@ fun OpenClawScreen(config: AppConfig, store: ConversationStore, chatScope: Corou
             try {
                 val sessionKey = "agent:main:" + target.key
                 
-                // 构建包含历史上下文的消息
+                // 构建包含历史上下文的消息（限制历史消息数量，避免上下文过长）
                 val contextMessage = buildString {
-                    // 添加历史消息作为上下文
-                    val historyMessages = target.messages.dropLast(2) // 排除当前用户消息和空助手消息
+                    // 只保留最近的历史消息（最多 10 条），避免上下文过长导致处理缓慢
+                    val historyMessages = target.messages.dropLast(2).takeLast(10)
                     if (historyMessages.isNotEmpty()) {
                         append("=== 对话历史上下文 ===\n")
                         for (msg in historyMessages) {
@@ -1992,6 +1992,12 @@ fun SettingsScreen(config: AppConfig, onSave: (AppConfig) -> Unit) {
 /** 内嵌更新日志（与 workspace/CHANGELOG.txt 同步） */
 private const val CHANGELOG_TEXT = """AgentHub 版本更新日志
 ================================================================
+
+v1.16 (versionCode 21)
+----------------------------------------------------------------
+[修复] 签名不一致问题：修复 Release APK 签名配置，避免安装时需要卸载旧版本
+[优化] 对话回复性能：限制历史上下文长度（最多 10 条消息），减少处理时间
+[优化] 超时配置：聊天超时从 10 分钟减少到 5 分钟，静默断连检测从 5 分钟减少到 2 分钟
 
 v1.15 (versionCode 20)
 ----------------------------------------------------------------

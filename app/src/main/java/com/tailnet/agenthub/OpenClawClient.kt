@@ -996,14 +996,14 @@ class OpenClawClient(
     private fun trimSlash(url: String): String = url.trim().trimEnd('/')
 
     companion object {
-        // 每次尝试的超时：10 分钟（独立预算，不共享）
-        private const val CHAT_TIMEOUT_MS = 600_000L
-        // 总超时上限：30 分钟（含所有重试），防止无限等待
-        private const val MAX_TOTAL_CHAT_MS = 1_800_000L
+        // 每次尝试的超时：5 分钟（独立预算，不共享）
+        private const val CHAT_TIMEOUT_MS = 300_000L
+        // 总超时上限：15 分钟（含所有重试），防止无限等待
+        private const val MAX_TOTAL_CHAT_MS = 900_000L
         private const val RPC_TIMEOUT_MS = 60_000L
-        // 静默断连看门狗：5 分钟无任何事件才判定断连
-        // （agent 思考期间可能数分钟无输出，120 秒太激进会误杀正常连接）
-        private const val SILENCE_TIMEOUT_MS = 300_000L
+        // 静默断连看门狗：2 分钟无任何事件才判定断连
+        // （agent 思考期间可能数分钟无输出，但 5 分钟太长）
+        private const val SILENCE_TIMEOUT_MS = 120_000L
         private const val WATCHDOG_INTERVAL_MS = 30_000L
         private const val MAX_RETRIES = 5
         private const val CLIENT_ID = "openclaw-android"
