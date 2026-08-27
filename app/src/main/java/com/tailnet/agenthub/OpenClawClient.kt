@@ -755,6 +755,7 @@ class OpenClawClient(
         // 会话键过滤：只处理当前会话的事件
         val eventSessionKey = payload.optString("sessionKey", "")
         if (sessionKey != null && eventSessionKey.isNotBlank() && eventSessionKey != sessionKey) {
+            android.util.Log.d("OpenClawClient", "过滤掉其他会话的事件: $eventSessionKey != $sessionKey")
             return
         }
         
@@ -787,17 +788,20 @@ class OpenClawClient(
             "final" -> {
                 // 优先从 message 对象提取；其次从 payload 直接找文本字段；
                 // 最后用已累积的 delta 文本
-                val finalText = extractMessageText(payload.optJSONObject("message"))
+                val messageObj = payload.optJSONObject("message")
+                val finalText = extractMessageText(messageObj)
                     ?: payload.optString("text", "").ifBlank { null }
                     ?: payload.optString("reply", "").ifBlank { null }
                     ?: sb.toString().ifBlank { null }
                 
-                if (finalText != null) {
+                android.util.Log.d("OpenClawClient", "收到 final 事件: message=$messageObj, finalText=$finalText, sb长度=${sb.length}")
+                
+                if (finalText != null && finalText.isNotBlank()) {
                     succeed(finalText, extractMeta(payload))
                 } else {
                     // 空回复：可能是 agent 还在思考，或者服务端返回了空结果
                     // 记录日志并返回空字符串，让调用者处理
-                    android.util.Log.w("OpenClawClient", "收到 final 事件但内容为空")
+                    android.util.Log.w("OpenClawClient", "收到 final 事件但内容为空，payload: $payload")
                     succeed("", extractMeta(payload))
                 }
             }
@@ -1001,9 +1005,9 @@ class OpenClawClient(
         // 总超时上限：15 分钟（含所有重试），防止无限等待
         private const val MAX_TOTAL_CHAT_MS = 900_000L
         private const val RPC_TIMEOUT_MS = 60_000L
-        // 静默断连看门狗：2 分钟无任何事件才判定断连
-        // （agent 思考期间可能数分钟无输出，但 5 分钟太长）
-        private const val SILENCE_TIMEOUT_MS = 120_000L
+        // 静默断连看门狗：5 分钟无任何事件才判定断连
+        // （agent 思考期间可能数分钟无输出，120 秒太激进会误杀正常连接）
+        private const val SILENCE_TIMEOUT_MS = 300_000L
         private const val WATCHDOG_INTERVAL_MS = 30_000L
         private const val MAX_RETRIES = 5
         private const val CLIENT_ID = "openclaw-android"
